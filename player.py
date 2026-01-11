@@ -1,10 +1,10 @@
-import pygame
-# player.py
+import pygame 
+
 class PlayerPlugin:
     def __init__(self):
         self.rect = pygame.Rect(400, 500, 50, 50)
         self.color = (0, 255, 0)
-        self.lives = 3 # 投影片提到的額外功能：免死機會
+        self.lives = 3
 
     def take_damage(self):
         self.lives -= 1
