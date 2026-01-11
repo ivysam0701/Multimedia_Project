@@ -7,7 +7,7 @@ class GameEngine:
         self.screen = pygame.display.set_mode((800, 600))
         self.clock = pygame.time.Clock()
         self.plugins = []
-        self.running = True  # <--- 確保這行有加，解決 image_3dcdeb.png 的錯誤
+        self.running = True # 解決 image_3dcdeb.png 報錯
 
     def register_plugin(self, plugin):
         self.plugins.append(plugin)
@@ -24,25 +24,23 @@ class GameEngine:
             for p in self.plugins:
                 p.update()
             
-            # 碰撞偵測 (基礎邏輯)
+            # 碰撞偵測
             player = self.plugins[0]
             enemy_plugin = self.plugins[1]
             for e_pos in enemy_plugin.enemies:
                 e_rect = pygame.Rect(e_pos[0]-15, e_pos[1]-15, 30, 30)
                 if player.rect.colliderect(e_rect):
                     player.lives -= 1
-                    e_pos[1] = -50 
+                    e_pos[1] = -50 # 撞到後敵人重生
             
             # 繪製畫面
             self.screen.fill((30, 30, 30))
             for p in self.plugins:
                 p.draw(self.screen)
             
-            # 如果玩家沒血了，顯示 Game Over 並停止更新
             if player.lives <= 0:
                 text_surf = font.render("GAME OVER", True, (255, 0, 0))
                 self.screen.blit(text_surf, (200, 250))
-                # 這裡可以不設 self.running = False，讓畫面停在 Game Over
             
             pygame.display.flip()
             self.clock.tick(60)
