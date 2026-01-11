@@ -1,17 +1,18 @@
 import pygame
 
 class ScorePlugin:
-    def init(self):
+    def __init__(self):
         self.score = 0
+        # 務必確保定義了 self.font，解決之前的報錯
         self.font = pygame.font.SysFont("arial", 30) 
 
     def update(self):
-        pass 
+        pass # 分數由 main.py 判定接球時增加
 
     def draw(self, screen):
-        # --- 修正 1：靠右對齊，預留空間給數字長度 ---
         score_text = f"Score: {self.score}"
         score_surf = self.font.render(score_text, True, (255, 255, 255))
-        # 確保 X 座標會根據文字寬度自動調整，不超出 800
+        
+        # 修正 image_3eba32：動態計算文字寬度，確保永遠靠右顯示
         text_width = score_surf.get_width()
         screen.blit(score_surf, (780 - text_width, 20))
