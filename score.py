@@ -1,13 +1,13 @@
 import pygame
 
 class ScorePlugin:
-    def init(self):
+    def __init__(self):
         self.score = 0
-        self.font = pygame.font.SysFont("arial", 30)
+        # 修正 image_3e5cb0 的錯誤
+        self.font = pygame.font.SysFont("arial", 30) 
 
     def update(self):
-        # 分數隨時間微幅增加，或由 main.py 判斷碰撞後呼叫增加
-        pass
+        pass # 分數由 main.py 接到球時增加
 
     def draw(self, screen):
         score_surf = self.font.render(f"Score: {self.score}", True, (255, 255, 255))

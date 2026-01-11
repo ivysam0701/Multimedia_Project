@@ -3,18 +3,14 @@ import random
 
 class EnemyPlugin:
     def __init__(self):
-        # 解決 image_3e41ed 報錯
-        self.enemies = [[random.randint(0, 750), 0]] 
+        # 初始兩顆球
+        self.enemies = [[random.randint(0, 750), 0], [random.randint(0, 750), -300]]
         self.color = (255, 0, 0)
-        # 解決 image_3de48e / image_3e4dcd 報錯
         self.speed = 3 
 
     def update(self):
-        self.speed += 0.001
         for e in self.enemies:
             e[1] += self.speed
-            if e[1] > 600:
-                e[0], e[1] = random.randint(0, 750), 0
 
     def draw(self, screen):
         for e in self.enemies:
