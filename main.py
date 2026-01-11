@@ -13,23 +13,37 @@ class GameEngine:
         """用於掛載功能的介面"""
         self.plugins.append(plugin)
 
+    # main.py 核心循環部分
     def run(self):
-        while True:
-            # 1. 基本事件處理
+        while self.running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
+                    self.running = False
             
-            # 2. 插件邏輯更新 (Base 不管內容，只管發號施令)
+            # 更新所有插件
             for p in self.plugins:
                 p.update()
             
-            # 3. 畫面繪製
-            self.screen.fill((30, 30, 30))  # 背景
+            # --- 碰撞偵測（新增）---
+            player = self.plugins[0] # 假設第一個是玩家
+            enemy_plugin = self.plugins[1] # 假設第二個是敵人
+            
+            for e_pos in enemy_plugin.enemies:
+                # 建立矩形判定區 (座標, 寬高)
+                enemy_rect = pygame.Rect(e_pos[0]-15, e_pos[1]-15, 30, 30)
+                if player.rect.colliderect(enemy_rect):
+                    # 呼叫玩家插件的「受傷」功能
+                    player.take_damage() 
+                    # 敵人重置位置避免連續碰撞
+                    e_pos[1] = -50 
+                    if player.lives <= 0:
+                        print("遊戲結束")
+                        self.running = False
+            # ----------------------
+
+            self.screen.fill((30, 30, 30))
             for p in self.plugins:
                 p.draw(self.screen)
-            
             pygame.display.flip()
             self.clock.tick(60)
 
