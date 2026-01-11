@@ -5,11 +5,10 @@ class EnemyPlugin:
     def init(self):
         self.enemies = [[random.randint(0, 750), 0]]
         self.color = (255, 0, 0)
-        self.speed = 3 # 初始速度
+        self.speed = 3  # <--- 務必加上這行，解決 image_3dd228.png 的錯誤
 
     def update(self):
-        # 難度演進：每 500 幀稍微增加速度
-        self.speed += 0.001 
+        # 這裡會用到 self.speed
         for e in self.enemies:
             e[1] += self.speed
             if e[1] > 600:
