@@ -1,14 +1,14 @@
 import pygame
 
 class ScorePlugin:
-    def __init__(self):
+    def init(self):
         self.score = 0
-        self.font = pygame.font.SysFont("arial", 24)
+        self.font = pygame.font.SysFont("arial", 30)
 
     def update(self):
-        # 這裡不需要判斷 lives，因為 main.py 已經幫我們停掉 update 了
-        self.score += 1 
+        # 分數隨時間微幅增加，或由 main.py 判斷碰撞後呼叫增加
+        pass
 
     def draw(self, screen):
-        score_surf = self.font.render(f"SCORE: {self.score}", True, (255, 255, 255))
-        screen.blit(score_surf, (10, 60)) # 顯示在生命值下方
+        score_surf = self.font.render(f"Score: {self.score}", True, (255, 255, 255))
+        screen.blit(score_surf, (650, 20))
