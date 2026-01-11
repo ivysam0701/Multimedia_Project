@@ -1,3 +1,4 @@
+import pygame
 # player.py
 class PlayerPlugin:
     def __init__(self):
