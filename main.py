@@ -2,6 +2,17 @@ import pygame
 import sys
 import random
 import math
+import os
+
+# --- 第一步：支援內置路徑的轉換函式 ---
+def resource_path(relative_path):
+    """ 取得資源絕對路徑，支援開發環境與 PyInstaller 打包後的環境 """
+    try:
+        # PyInstaller 建立臨時資料夾將路徑存於 _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 class GameEngine:
     def __init__(self):
@@ -26,16 +37,19 @@ class GameEngine:
         # 使用系統字體支援中文 (Windows 常用字體)
         self.font_path = "microsoftjhenghei" 
         
+        # --- 資源載入：使用 resource_path 封裝 ---
         try:
-            pygame.mixer.music.load('bgm.mp3')
-            self.catch_sound = pygame.mixer.Sound('catch.wav')
-            self.gameover_sound = pygame.mixer.Sound('gameover.wav')
-            self.bomb_sound = pygame.mixer.Sound('gameover.wav') 
+            pygame.mixer.music.load(resource_path('bgm.mp3'))
+            self.catch_sound = pygame.mixer.Sound(resource_path('catch.wav'))
+            self.gameover_sound = pygame.mixer.Sound(resource_path('gameover.wav'))
+            self.bomb_sound = pygame.mixer.Sound(resource_path('gameover.wav')) 
             pygame.mixer.music.play(-1)
             pygame.mixer.music.set_volume(self.volume)
-        except: self.catch_sound = self.gameover_sound = self.bomb_sound = None
+        except: 
+            self.catch_sound = self.gameover_sound = self.bomb_sound = None
 
     def reset_game(self):
+        # 注意：打包單一檔案時，這些外掛檔案必須放在與 main.py 相同的資源根目錄
         from player import PlayerPlugin
         from enemy import EnemyPlugin
         from score import ScorePlugin
@@ -47,7 +61,8 @@ class GameEngine:
         
         self.plugins = [PlayerPlugin(nl, ns, nm), EnemyPlugin(), ScorePlugin()]
         self.current_catch = 0
-        if self.last_dropped_file: self.plugins[0].load_local_image(self.last_dropped_file)
+        if self.last_dropped_file: 
+            self.plugins[0].load_local_image(self.last_dropped_file)
         self.state = "PLAYING"
         pygame.mixer.music.play(-1)
 
@@ -76,7 +91,8 @@ class GameEngine:
             m_cost = 2400 * (2 ** self.magnet_level)
 
             for event in pygame.event.get():
-                if event.type == pygame.QUIT: pygame.quit(); sys.exit()
+                if event.type == pygame.QUIT: 
+                    pygame.quit(); sys.exit()
                 if event.type == pygame.DROPFILE:
                     self.last_dropped_file = event.file
                     if self.state == "PLAYING": self.plugins[0].load_local_image(event.file)
@@ -92,8 +108,10 @@ class GameEngine:
                         if 300 < m_pos[0] < 500 and 420 < m_pos[1] < 480: # 磁鐵
                             if self.total_points >= m_cost: self.total_points -= m_cost; self.magnet_level += 1
                         # 音量鍵
-                        if 320 < m_pos[0] < 360 and 500 < m_pos[1] < 540: self.volume = max(0.0, self.volume-0.1); pygame.mixer.music.set_volume(self.volume)
-                        if 440 < m_pos[0] < 480 and 500 < m_pos[1] < 540: self.volume = min(1.0, self.volume+0.1); pygame.mixer.music.set_volume(self.volume)
+                        if 320 < m_pos[0] < 360 and 500 < m_pos[1] < 540: 
+                            self.volume = max(0.0, self.volume-0.1); pygame.mixer.music.set_volume(self.volume)
+                        if 440 < m_pos[0] < 480 and 500 < m_pos[1] < 540: 
+                            self.volume = min(1.0, self.volume+0.1); pygame.mixer.music.set_volume(self.volume)
                     elif self.state == "GAMEOVER":
                         if 300 < m_pos[0] < 500 and 450 < m_pos[1] < 510: 
                             self.plugins = [] # 修復返回基地問題
@@ -105,7 +123,7 @@ class GameEngine:
                 render_offset = [random.randint(-self.shake_amount, self.shake_amount), random.randint(-self.shake_amount, self.shake_amount)]
                 self.shake_amount -= 1
 
-            # 介面渲染 (亮灰色系)
+            # 介面渲染
             self.screen.fill((240, 240, 240))
             temp_surface = pygame.Surface((800, 600))
             temp_surface.fill((240, 240, 240))
@@ -144,6 +162,7 @@ class GameEngine:
                     
                     e_rect = pygame.Rect(e['pos'][0]-15, e['pos'][1]-15, 30, 30)
                     if player.rect.colliderect(e_rect):
+                        # --- 碰撞邏輯與音效處理 ---
                         if e['type'] == "NORMAL": score_plugin.score += 100; self.current_catch += 1
                         elif e['type'] == "GOLD": score_plugin.score += 500; self.current_catch += 1
                         elif e['type'] == "BOMB": 
